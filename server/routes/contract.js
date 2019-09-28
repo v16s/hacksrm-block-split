@@ -38,9 +38,7 @@ contract.post('/init', (req, res) => {
   let values = Object.values(manifest)
   values = values.map(d => Web3.utils.toWei(d))
 
-  let Splitter = new web3.eth.Contract(abi)
-  Splitter.deploy({ data: bytecode, arguments: [addresses, to, values] })
-  res.sendStatus(200)
+  res.json({ data: bytecode, arguments: [addresses, to, values], abi: abi })
 })
 
 export { contract }
