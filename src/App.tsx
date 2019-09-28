@@ -1,9 +1,42 @@
 import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import clsx from 'clsx';
+import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
+import MenuItem from '@material-ui/core/MenuItem';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import secView from './secView';
 
 import './App.css';
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    container: {
+      display: 'flex',
+      flexWrap: 'wrap',
+    },
+    button: {
+      margin: theme.spacing(1),
+    },
+    input: {
+      display: 'none',
+    },
+    textField: {
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
+      width: 200,
+    },
+    dense: {
+      marginTop: 19,
+    },
+    menu: {
+      width: 200,
+    },
+  })
+);
+
 const App: React.FC = () => {
+  const classes = useStyles({});
   const [fields, setFields] = useState([{ value: null }]);
 
   function handleChange(i, event) {
@@ -41,6 +74,20 @@ const App: React.FC = () => {
             <button type='button' onClick={() => handleAdd()}>
               Add new user
             </button>
+            <Router>
+              <Link to='/secView'>
+                <Button
+                  variant='contained'
+                  color='primary'
+                  className={classes.button}
+                >
+                  Primary
+                </Button>
+              </Link>
+              <Switch>
+                <Route path='/secView' component={secView} />
+              </Switch>
+            </Router>
           </div>
         );
       })}
