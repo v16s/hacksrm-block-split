@@ -127,7 +127,7 @@ class Navbar extends React.Component<
                 </NavLink>
               </NavItem>
               <NavItem>
-                <NavLink href='https://github.com/hacksrm-block-split'>
+                <NavLink href='https://github.com/v16s/hacksrm-block-split'>
                   Source Code
                 </NavLink>
               </NavItem>
