@@ -24,7 +24,6 @@ const input = {
 }
 
 const output = JSON.parse(solc.compile(JSON.stringify(input)))
-console.log(output)
 const bytecode =
   output.contracts['splitter.sol']['Splitter'].evm.bytecode.object
 const manager_bytecode =
@@ -33,18 +32,44 @@ const manager_abi = output.contracts['splitter_manager.sol']['test3'].abi
 const abi = output.contracts['splitter.sol']['Splitter'].abi
 
 const provider = new Web3.providers.HttpProvider(
-  'http://ropsten.infura.io/v3/bac5ce8d49534c289eb0c6838fedc5f6'
+  'https://ropsten.infura.io/v3/bac5ce8d49534c289eb0c6838fedc5f6'
 )
 
 const web3 = new Web3(provider)
 
 const split_contract = new web3.eth.Contract(
-  abi,
-  '0xa23C588885718B80CA40955F3cC9227427C7a7bC'
+  manager_abi,
+  '0x8C014E3AB599FdaED123AB093e937f644288590a'
 )
 
 contract.post('/init', (req, res) => {
   res.json({ data: manager_bytecode, abi: manager_abi })
 })
-
+contract.post('/list', (req, res) => {
+  let { address } = req.body
+  split_contract
+    .getPastEvents('NewContract', { fromBlock: 0, toBlock: 'latest' })
+    .then(events => {
+      res.json(
+        events
+          .filter(
+            e =>
+              e.returnValues.senderAddress.toLowerCase() ==
+                address.toLowerCase() ||
+              address.toLowerCase() in
+                e.returnValues.participants.map(d => d.toLowerCase())
+          )
+          .map(d => d.returnValues.contractAddress)
+      )
+    })
+})
+contract.post('/resolves', (req, res) => {
+  let { address } = req.body
+  const resolve_contract = new web3.eth.Contract(abi, address)
+  resolve_contract
+    .getPastEvents('Request', { fromBlock: 0, toBlock: 'latest' })
+    .then(events => {
+      res.json(events.map(e => ({ result: e.returnValues })))
+    })
+})
 export { contract }

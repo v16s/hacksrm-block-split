@@ -1,18 +1,17 @@
 
 pragma solidity >=0.4.22 <0.6.0;
-
 import "./splitter.sol";
 
 contract test3 {
     Splitter splitterToTest;
     constructor() public payable{
     }
-    event NewContract(address contractAddress);
+    event NewContract(address contractAddress, address senderAddress,  address[] participants);
     function test (address[] memory addresses, uint256[] memory values, address payable to_addr) public payable {
-        splitterToTest = (new Splitter).value(msg.value)(addresses, to_addr,values);
-        emit NewContract(address(splitterToTest));
+        splitterToTest = (new Splitter).value(msg.value)(addresses, to_addr, values);
+        emit NewContract(address(splitterToTest), msg.sender, addresses);
     }
-    function resolve() payable public {
+    function resolve() public payable  {
         splitterToTest.resolve.value(msg.value)(parseAddr('0x583031D1113aD414F02576BD6afaBfb302140225'));
     }
     function parseAddr(string memory _a) internal pure returns (address _parsedAddress) {

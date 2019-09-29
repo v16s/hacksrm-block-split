@@ -2,9 +2,10 @@ import React, { useEffect } from 'react';
 import './assets/css/nucleo-icons.css';
 import './assets/scss/blk-design-system-react.scss?v=1.0.0';
 import './assets/demo/demo.css';
+import './App.css';
 import Web3 from 'web3';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { LandingPage, App } from './views';
+import { LandingPage, App, Search, Split } from './views';
 
 const Root: React.FC = () => {
   let web3: any;
@@ -41,6 +42,12 @@ const Root: React.FC = () => {
   return (
     <Router>
       <Switch>
+        <Route path='/search/:address'>
+          <Split></Split>
+        </Route>
+        <Route path='/search'>
+          <Search></Search>
+        </Route>
         <Route path='/app'>
           <App web3={web3}></App>
         </Route>

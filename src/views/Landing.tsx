@@ -62,6 +62,7 @@ const LandingPage: React.FC = () => {
                   easier for the people who are involved in trusted transactions
                   where even splitting is a need.
                 </p>
+                <div style={{display: 'flex'}}>
                 <Button
                   className='btn-round'
                   color='primary'
@@ -70,6 +71,16 @@ const LandingPage: React.FC = () => {
                 >
                   Split & Send
                 </Button>
+                <Button
+                  className='btn-round'
+                  color='info'
+                  type='button'
+                  onClick={() => history.push('/search')}
+                >
+                  Previous Splits
+                </Button>
+                </div>
+                
               </Col>
               <Col lg='4' md='5'>
                 <img

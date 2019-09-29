@@ -3,8 +3,6 @@ import { Button, Input } from 'reactstrap';
 import Web3 from 'web3';
 import { withRouter } from 'react-router-dom';
 import axios from 'axios';
-const Eth = require('ethjs-query');
-const EthContract = require('ethjs-contract');
 declare global {
   interface Window {
     web3: any;
@@ -56,12 +54,12 @@ class Splits extends React.Component<
       axios.post('http://localhost:5000/contract/init').then(res => {
         let { data, abi } = res.data;
         let web3 = new Web3(window.web3.currentProvider);
-        // Acccounts always exposed
 
         const contract = new web3.eth.Contract(
           abi,
-          '0xa23C588885718B80CA40955F3cC9227427C7a7bC'
+          '0x8C014E3AB599FdaED123AB093e937f644288590a'
         );
+        console.log(contract);
         contract.methods.test(participants, values, toAddress).send({
           from: window.web3.currentProvider.selectedAddress,
           value: Web3.utils.toWei(`${toAmount}`),
