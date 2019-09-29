@@ -17,10 +17,11 @@ contract Splitter {
     constructor(address[] memory participants, address payable receiver, uint256[] memory values) public payable {
         caller = msg.sender;
         parties = participants;
-        for(uint i = 0; i < participants.length;i++){
+        for(uint i=0;i<participants.length;i++){
             paid[participants[i]].value = values[i];
         }
-        
+        parties.push(msg.sender);
+        paid[msg.sender].value = msg.value;
         if(participants.length < 10){
             fetchSplits();
         }
@@ -33,14 +34,15 @@ contract Splitter {
         receiver.transfer(msg.value);
     }
     function fetchSplits() private {
+        
         uint256 total = 0;
         uint256 negative_total = 0;
-        for(uint8 i = 0;i<parties.length;i++){
-            total += uint256(paid[parties[i]].value);
+        for(uint8 i=0;i<parties.length;i++){
+            total+=uint256(paid[parties[i]].value);
         }
 
         uint256 part = uint256(total)/parties.length;
-        for(uint8 i = 0;i < parties.length;i++){
+        for(uint8 i=0;i<parties.length;i++){
             int256 val = int256(part) - int256(paid[parties[i]].value);
             pending[parties[i]].value = val;
             if(val >= 0) {
@@ -49,14 +51,14 @@ contract Splitter {
                 }
                 pending[parties[i]].percentage = 0;
             } else {
-                negative_total += uint256(val * -1);
+                negative_total+=uint256(val * -1);
                 pending[parties[i]].percentage = 1;
             }
         }
-        for(uint8 i = 0 ; i < parties.length;i++){
+        for(uint8 i=0;i<parties.length;i++){
             int256 val = pending[parties[i]].value;
             if(val < 0) {
-                uint8 percentage = uint8((uint32(val * -1) * 100) / negative_total);
+                uint8 percentage = uint8((uint32(val * -1) * 100)/ negative_total);
                 pending[parties[i]].percentage = percentage;
                 
             }
@@ -64,20 +66,20 @@ contract Splitter {
 
     }
     function check() public {
-        for(uint8 i = 0; i < parties.length ; i++){
+        for(uint8 i=0;i<parties.length;i++){
             int256 val = pending[parties[i]].value;
             if(val > 0) {
                 emit Request(parties[i], uint256(val * -1));
             }
         }
     }
-    function resolve(address sender) public payable {
+    function resolve(address sender) payable public {
         if(parties.length < 10){
             pending[sender].value = pending[sender].value - int256(msg.value);
-            for(uint8 i = 0;i < parties.length; i++) {
+            for(uint8 i=0;i<parties.length;i++) {
                 if(pending[parties[i]].percentage > 0) {
                     address payable en_addr = address(uint160(parties[i]));
-                    uint256 val = uint256(pending[parties[i]].percentage * msg.value / 100);
+                    uint256 val= uint256(pending[parties[i]].percentage * msg.value / 100);
                     en_addr.transfer(val);
                     emit Resolve(en_addr, val);
                 }
@@ -85,4 +87,7 @@ contract Splitter {
             check();
         }
     }
+    /// Give $(toVoter) the right to vote on this ballot.
+    /// May only be called by $(chairperson).
+    
 }

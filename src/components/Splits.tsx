@@ -1,21 +1,32 @@
 import React from 'react';
 import { Button, Input } from 'reactstrap';
 import Web3 from 'web3';
+import { withRouter } from 'react-router-dom';
+import axios from 'axios';
+const Eth = require('ethjs-query');
+const EthContract = require('ethjs-contract');
+declare global {
+  interface Window {
+    web3: any;
+    ethereum: any;
+  }
+}
+
 class Splits extends React.Component<
   {
     toAmount: number;
     toAddress: string;
+    history?: any;
+    web3: any;
   },
   {
     rows?: { address: string; amount: string }[];
   }
 > {
   state = {
-    rows: [{ address: '', amount: '' }],
+    rows: [{ address: '', amount: '0' }],
   };
-  onSubmit = () => {
-    const { toAmount, toAddress } = this.props;
-  };
+
   setAmount = (value: string, index: number) => {
     let { rows } = this.state;
     rows[index].amount = value;
@@ -26,6 +37,7 @@ class Splits extends React.Component<
     rows[index].address = value;
     this.setState({ rows });
   };
+
   removeRow = (index: number) => {
     let { rows } = this.state;
     this.setState({ rows: rows.filter((d, i) => i != index) });
@@ -33,14 +45,28 @@ class Splits extends React.Component<
   addRow = () => {
     let { rows } = this.state;
     if (rows.length <= 9) {
-      this.setState({ rows: [...rows, { address: '', amount: '' }] });
+      this.setState({ rows: [...rows, { address: '', amount: '0' }] });
     }
   };
   submit = () => {
-    let values = this.state.rows.map(d => Web3.utils.toWei(d.amount)),
+    const { toAmount, toAddress } = this.props;
+    const values = this.state.rows.map(d => Web3.utils.toWei(d.amount)),
       participants = this.state.rows.map(d => d.address);
     if (participants.every(d => Web3.utils.isAddress(d))) {
-      // Web3 code goes here
+      axios.post('http://localhost:5000/contract/init').then(res => {
+        let { data, abi } = res.data;
+        let web3 = new Web3(window.web3.currentProvider);
+        // Acccounts always exposed
+
+        const contract = new web3.eth.Contract(
+          abi,
+          '0xa23C588885718B80CA40955F3cC9227427C7a7bC'
+        );
+        contract.methods.test(participants, values, toAddress).send({
+          from: window.web3.currentProvider.selectedAddress,
+          value: Web3.utils.toWei(`${toAmount}`),
+        });
+      });
     }
   };
   render() {
@@ -61,7 +87,7 @@ class Splits extends React.Component<
 
         <p style={{ margin: '2em' }}>
           Enter the addresses of the people you want to split the amount with
-          along with the amounts that they have contributed.
+          (along with the amounts if they have contributed previously).
         </p>
         <div
           style={{
@@ -83,7 +109,7 @@ class Splits extends React.Component<
                 placeholder='Ethereum Address'
                 type='text'
                 style={{
-                  width: '60%',
+                  width: d.amount != '0' ? '60%' : '80%',
                 }}
                 value={d.address}
                 onChange={e => this.setAddress(e.target.value, i)}
@@ -93,7 +119,7 @@ class Splits extends React.Component<
                 placeholder='Amount'
                 type='text'
                 style={{
-                  width: '30%',
+                  width: d.amount != '0' ? '30%' : '10%',
                 }}
                 value={d.amount}
                 onChange={e => this.setAmount(e.target.value, i)}
@@ -115,7 +141,12 @@ class Splits extends React.Component<
               justifyContent: 'center',
             }}
           >
-            <Button className='btn-round' color='primary' type='button'>
+            <Button
+              className='btn-round'
+              color='primary'
+              type='button'
+              onClick={this.submit}
+            >
               Submit
             </Button>
             <Button
@@ -126,9 +157,25 @@ class Splits extends React.Component<
               <i className='tim-icons icon-simple-add' />
             </Button>
           </div>
+          <div
+            style={{
+              margin: '5px',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <Button
+              className='btn-round'
+              color='default'
+              onClick={e => this.props.history.push('/')}
+            >
+              Back
+            </Button>
+          </div>
         </div>
       </div>
     );
   }
 }
-export { Splits };
+const SplitRouter = withRouter(Splits);
+export { SplitRouter as Splits };

@@ -12,22 +12,22 @@ import {
   Col,
 } from 'reactstrap';
 import Web3 from 'web3';
+import { useHistory } from 'react-router-dom';
 import { Splits } from '../components';
-const App: React.FC = () => {
+const App: React.FC<{ web3: any }> = ({ web3 }) => {
   const [toAddress, setToAddress] = useState('');
   const [toAmount, setToAmount] = useState('');
   const [hideForm, showForm] = useState(true);
 
   function onSubmit() {
     if (
-      toAmount.match(new RegExp('.+', 'g'))
-      //   &&
-      //   Web3.utils.isAddress(toAddress)
+      toAmount.match(new RegExp('.+', 'g')) &&
+      Web3.utils.isAddress(toAddress)
     ) {
       showForm(false);
     }
   }
-
+  let history = useHistory();
   if (hideForm) {
     return (
       <div
@@ -97,12 +97,31 @@ const App: React.FC = () => {
               Next
             </Button>
           </div>
+          <div
+            style={{
+              margin: '5px',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <Button
+              className='btn-round'
+              color='default'
+              onClick={e => history.push('/')}
+            >
+              Back
+            </Button>
+          </div>
         </div>
       </div>
     );
   }
   return (
-    <Splits toAddress={toAddress} toAmount={parseFloat(toAmount)}></Splits>
+    <Splits
+      web3={web3}
+      toAddress={toAddress}
+      toAmount={parseFloat(toAmount)}
+    ></Splits>
   );
 };
 export { App };

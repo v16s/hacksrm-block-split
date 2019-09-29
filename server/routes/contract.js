@@ -9,6 +9,9 @@ const input = {
   sources: {
     'splitter.sol': {
       content: readFileSync('./server/contracts/splitter.sol', 'UTF-8')
+    },
+    'splitter_manager.sol': {
+      content: readFileSync('./server/contracts/splitter_manager.sol', 'UTF-8')
     }
   },
   settings: {
@@ -21,8 +24,12 @@ const input = {
 }
 
 const output = JSON.parse(solc.compile(JSON.stringify(input)))
+console.log(output)
 const bytecode =
   output.contracts['splitter.sol']['Splitter'].evm.bytecode.object
+const manager_bytecode =
+  output.contracts['splitter_manager.sol']['test3'].evm.bytecode.object
+const manager_abi = output.contracts['splitter_manager.sol']['test3'].abi
 const abi = output.contracts['splitter.sol']['Splitter'].abi
 
 const provider = new Web3.providers.HttpProvider(
@@ -31,14 +38,13 @@ const provider = new Web3.providers.HttpProvider(
 
 const web3 = new Web3(provider)
 
+const split_contract = new web3.eth.Contract(
+  abi,
+  '0xa23C588885718B80CA40955F3cC9227427C7a7bC'
+)
+
 contract.post('/init', (req, res) => {
-  let { manifest, to } = req.body
-
-  let addresses = Object.keys(manifest)
-  let values = Object.values(manifest)
-  values = values.map(d => Web3.utils.toWei(d))
-
-  res.json({ data: bytecode, arguments: [addresses, to, values], abi: abi })
+  res.json({ data: manager_bytecode, abi: manager_abi })
 })
 
 export { contract }
