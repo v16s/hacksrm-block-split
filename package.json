@@ -8,7 +8,7 @@
     "@types/react": "16.9.3",
     "@types/react-dom": "16.9.1",
     "abi-decoder": "^2.2.2",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "clsx": "^1.0.4",
     "cors": "^2.8.5",
