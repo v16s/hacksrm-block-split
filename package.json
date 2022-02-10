@@ -54,7 +54,7 @@
     "@babel/node": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
     "@types/web3": "^1.0.20",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "reactstrap": "^8.0.1"
   }
 }
